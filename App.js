@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, Image, Button } from "react-native";
+import { View, Text, Button, StyleSheet } from "react-native";
 
 class App extends Component {
 
@@ -34,16 +34,36 @@ class App extends Component {
   }
     render() {
     return (
-      <View>
+      <View style={styles.area}>
         <Text>{this.state.nome}</Text>
-        <Button title="Entrar" onPress={() => this.entrar("Kristian")}/>
+        <Button title="Entrar" onPress={() => this.entrar("Joao")}/>
 
         <Text> {this.state.numero} </Text>
         <Button title="+" onPress={this.aumentar} />
         <Button title="-" onPress={this.diminuir} />
+
+        <Text style={[styles.texto1, styles.alinhaTexto]}>Eu sou o texto 1</Text>
+        <Text style={styles.alinhaTexto}>Eu sou o texto 2</Text>
+        <Text>Eu sou o texto 3</Text>
+        <Text>Eu sou o texto 4</Text>
+        <Text style={styles.texto1}>Eu sou o texto 5</Text>
+
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  area:{
+    marginTop: 20
+  },
+  texto1:{
+    color: 'red',
+    fontSize: 20
+  },
+  alinhaTexto:{
+    textAlign: 'center'
+  }
+});
 
 export default App;
