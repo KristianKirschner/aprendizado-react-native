@@ -48,6 +48,15 @@ class App extends Component {
         <Text>Eu sou o texto 4</Text>
         <Text style={styles.texto1}>Eu sou o texto 5</Text>
 
+        <View style={{backgroundColor: 'white', flex: 1}}>
+          <Text>Texto no branco</Text>
+        </View>
+        <View style={{backgroundColor: 'red', flex: 2}}>
+          <Text>Texto no vermelho</Text>          
+        </View>
+        <View style={{backgroundColor: 'blue', flex: 2}}>
+          <Text>Texto no azul</Text>          
+        </View>
       </View>
     );
   }
@@ -55,7 +64,9 @@ class App extends Component {
 
 const styles = StyleSheet.create({
   area:{
-    marginTop: 20
+    marginTop: 20,
+    backgroundColor: '#ddd',
+    flex: 1
   },
   texto1:{
     color: 'red',
