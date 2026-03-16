@@ -1,120 +1,89 @@
 import React, { Component } from "react";
-import { View, StyleSheet, TextInput, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Image, Text, TouchableOpacity} from "react-native";
 
 class App extends Component {
-  constructor(props) {
+  constructor(props){
     super(props);
     this.state = {
-      nomes: ["João", "Maria", "Carlos"],
-      novoItem: ''
+      textoFrase: '',
+      img: require('./src/biscoito.png')
     }
 
-    this.pegaNome = this.pegaNome.bind(this)
-    this.adiciona = this.adiciona.bind(this)
-    this.remover = this.remover.bind(this)
+    this.frases = [
+      'Siga os bons e aprenda com eles.', 
+      'O bom-senso vale mais do que muito conhecimento.', 
+      'O riso é a menor distância entre duas pessoas.', 
+      'Deixe de lado as preocupações e seja feliz.',
+      'Realize o óbvio, pense no improvável e conquiste o impossível.',
+      'Acredite em milagres, mas não dependa deles.',
+      'A maior barreira para o sucesso é o medo do fracasso.'
+    ];
 
+    this.quebraBiscoito = this.quebraBiscoito.bind(this)
   }
 
-  pegaNome(texto) {
-    this.setState({ novoItem: texto })
-  }
-
-  adiciona() {
-    if (this.state.novoItem.length === 0) {
-      return;
-    }
+  quebraBiscoito(){
+    let numeroAleatorio = Math.floor(Math.random() * this.frases.length )
     this.setState({
-      nomes: [...this.state.nomes, this.state.novoItem]
+      textoFrase:  '"' + this.frases[numeroAleatorio] + '"',
+      img: require('./src/biscoitoAberto.png')
     })
-  }
-
-  remover(index) {
-    this.setState(prevState => ({
-      nomes: prevState.nomes.filter((_, i) => i !== index)
-    }));
   }
 
   render() {
     return (
-      <View style={{ flex: 1, backgroundColor: '#eaf0fa' }}>
-        <View style={styles.container}>
-          <View style={styles.inputbox}>
-            <TextInput onChangeText={this.pegaNome} style={styles.input} placeholder="Digite um nome: " />
-            <TouchableOpacity onPress={this.adiciona} style={styles.inputbutton}>
-              <Text style={styles.inputbuttontext} > Adicionar</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.hr}></View>
+      <View style={styles.container}>
+        <Image
+        style={styles.img}
+        source={this.state.img}
+        />
+      <Text style={styles.textofrase}>{this.state.textoFrase}</Text>
+      <TouchableOpacity onPress={this.quebraBiscoito} style={styles.botao}>
+        <View style={styles.btnarea}>
+          <Text style={styles.btntexto}>Quebrar biscoito</Text>
         </View>
-        <View style={styles.body}>
-          {this.state.nomes.map((nome, index) =>
-            <View style={{flexDirection: 'row'}}>
-              <Text key={index} style={styles.listitem}>{'\u2022'} {nome}</Text>
-              <TouchableOpacity style={styles.removerbutton} onPress={() => this.remover(index)}>
-                <Text style={styles.removebuttontext}>Remover</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+      </TouchableOpacity>
+
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  inputbox: {
-    marginTop: 20,
-    flexDirection: 'row',
+  container:{
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center' 
   },
-  container: {
+  img: {
+    width: 200,
+    height: 200
+  },
+  textofrase: {
+    fontSize: 20,
+    color: '#dd7b22',
+    margin: 30,
+    fontStyle: 'italic',
+    textAlign: 'center'
+  },
+  botao: {
+    width: 230,
+    height: 50,
+    borderWidth: 2,
+    borderColor: '#dd7b22',
+    borderRadius: 25
+  },
+  btnarea: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center'
   },
-  input: {
-    height: 40,
-    width: 200,
-    borderWidth: 2,
-    borderRadius: 10,
-    borderColor: '#222',
-    padding: 10,
-    fontSize: 15,
-    marginRight: 10,
-    backgroundColor: 'white'
-  },
-  inputbutton: {
-    width: 110,
-    height: 40,
-    backgroundColor: '#2E68CC',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10
-  },
-  inputbuttontext: {
-    color: 'white',
-    fontSize: 15
-  },
-  hr: {
-    marginTop: 25,
-    borderTopColor: 'black',
-    borderTopWidth: 1,
-    borderStyle: 'dashed',
-    width: 320,
-  },
-  body: {
-    alignItems: 'flex-start',
-    marginLeft: 60,
-    marginTop: 20
-  },
-  listitem: {
-    fontSize: 20,
-    fontWeight: '700'
-  },  
-  removebuttontext: {
-    color: 'red',
-    fontSize: 15,
-  },
-  
+  btntexto: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#dd7b22'
+  }
 })
 
 export default App;
