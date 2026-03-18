@@ -1,74 +1,30 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, FlatList, Text} from "react-native";
 
 class App extends Component {
-
-  constructor(props) {
-    super(props);
+  constructor(props){
+    super(props)
     this.state = {
-      numero: 0,
-      botao: 'VAI',
-      ultimo: null
-    };
+      feed: [
+        {id: '1', nome: 'Matheus', idade: 50, email: 'mat@gmail.com'},
+        {id: '2', nome: 'Joao', idade: 15, email: 'jao@gmail.com'},
+        {id: '3', nome: 'Kristian', idade: 20, email: 'kri@gmail.com'},
+        {id: '4', nome: 'Jose', idade: 50, email: 'jose@gmail.com'},
+        {id: '5', nome: 'Ana', idade: 21, email: 'ana@gmail.com'},
+        
+      ]
 
-    this.timer = null;
-    this.vai = this.vai.bind(this);
-    this.limpar = this.limpar.bind(this);
-
-  }
-
-  vai(){
-
-    if(this.timer != null){
-      clearInterval(this.timer);
-      this.timer = null;
-      this.setState({botao: 'VAI'})
-    } else {
-      this.timer = setInterval(() => {
-        this.setState({numero: this.state.numero + 0.01})
-      }, 1);
-      this.setState({botao: 'PAUSAR'})
-    }
-
-
-  }
-
-  limpar(){
-
-    if (this.timer != null){
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-    if (this.state.numero != 0){
-    this.setState({ultimo: this.state.numero.toFixed(2), numero: 0, botao: 'VAI'})
     }
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Image source={require('./src/cronometro.png')}
-          style={styles.cronometro} />
-
-        <Text style={styles.timer} > {this.state.numero.toFixed(2)} </Text>
-
-        <View style={styles.btnArea} >
-          <TouchableOpacity style={styles.btn} 
-          onPress={this.vai}>
-            <Text style={styles.btnTexto}>{this.state.botao}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btn} 
-          onPress={this.limpar}>
-            <Text style={styles.btnTexto}>LIMPAR</Text>
-          </TouchableOpacity>
-
-
-        </View>
-
-          <View style={styles.areaUltimo} >
-            <Text style={styles.textoCorrida} > Ultimo Tempo : {this.state.ultimo} </Text>
-          </View>
-
+        <FlatList
+        data={this.state.feed}
+        keyExtractor={(item) => item.id }
+        renderItem={ ({item}) => <Pessoa data={item} /> }
+        />
       </View>
     );
   }
@@ -76,45 +32,30 @@ class App extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#00aeef',
+    flex: 1
   },
-  timer: {
-    marginTop: -160,
+  areaPessoa: {
+    backgroundColor: '#222',
+    height: 200,
+    marginBottom: 15
+  },
+  textoPessoa: {
     color: 'white',
-    fontSize: 65,
-    fontWeight: 'bold'
-  },
-  btnArea: {
-    flexDirection: 'row',
-    marginTop: 75,
-    height: 40
-  },
-  btn: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    height: 40,
-    margin: 17,
-    borderRadius: 9
-  },
-  btnTexto: {
-    fontSize: 20,
-    color: '#00aeef',
-    fontWeight: 'bold'
-  },
-  areaUltimo: {
-    marginTop: 50,
-  },
-  textoCorrida: {
-    fontSize: 25,
-    fontStyle: 'italic',
-    color: 'white'
+    fontSize: 20
   }
 
 })
 
 export default App;
+
+class Pessoa extends Component{
+  render(){
+    return(
+      <View style={styles.areaPessoa} >
+        <Text style={styles.textoPessoa}> {this.props.data.nome} </Text>
+        <Text style={styles.textoPessoa}> {this.props.data.email} </Text>
+        <Text style={styles.textoPessoa}> {this.props.data.idade} </Text>
+      </View>
+    )
+  }
+}
