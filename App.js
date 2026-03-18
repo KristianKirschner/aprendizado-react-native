@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { View, StyleSheet, FlatList, Text} from "react-native";
+import Pessoa from './src/Pessoa'
 
 class App extends Component {
   constructor(props){
@@ -33,29 +34,7 @@ class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  areaPessoa: {
-    backgroundColor: '#222',
-    height: 200,
-    marginBottom: 15
-  },
-  textoPessoa: {
-    color: 'white',
-    fontSize: 20
   }
-
 })
 
 export default App;
-
-class Pessoa extends Component{
-  render(){
-    return(
-      <View style={styles.areaPessoa} >
-        <Text style={styles.textoPessoa}> {this.props.data.nome} </Text>
-        <Text style={styles.textoPessoa}> {this.props.data.email} </Text>
-        <Text style={styles.textoPessoa}> {this.props.data.idade} </Text>
-      </View>
-    )
-  }
-}
