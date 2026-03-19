@@ -1,40 +1,69 @@
+import { Picker } from "@react-native-picker/picker";
 import React, { Component } from "react";
-import { View, StyleSheet, FlatList, Text} from "react-native";
-import Pessoa from './src/Pessoa'
+import {View, StyleSheet, Text } from 'react-native'
 
-class App extends Component {
+export default class App extends Component{
   constructor(props){
     super(props)
     this.state = {
-      feed: [
-        {id: '1', nome: 'Matheus', idade: 50, email: 'mat@gmail.com'},
-        {id: '2', nome: 'Joao', idade: 15, email: 'jao@gmail.com'},
-        {id: '3', nome: 'Kristian', idade: 20, email: 'kri@gmail.com'},
-        {id: '4', nome: 'Jose', idade: 50, email: 'jose@gmail.com'},
-        {id: '5', nome: 'Ana', idade: 21, email: 'ana@gmail.com'},
-        
+      pizza: 0,
+      pizzas: [
+        {key: 1, nome: 'Strogonoff', valor: 35.90},
+        {key: 2, nome: 'Calabresa', valor: 59.90},
+        {key: 3, nome: 'Quatro Queijos', valor: 35.90},
+        {key: 4, nome: 'Brigadeiro', valor: 45.90},
+        {key: 5, nome: 'Marguerita', valor: 40.90},        
       ]
-
     }
   }
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <FlatList
-        data={this.state.feed}
-        keyExtractor={(item) => item.id }
-        renderItem={ ({item}) => <Pessoa data={item} /> }
-        />
+
+  render(){
+
+    let pizzasItem = this.state.pizzas.map((v, k) => {
+      return <Picker.Item  key={k} value={k} label={v.nome} />
+    }) 
+
+    return(
+      <View style={styles.container} >
+
+        <Text style={styles.logo} >Menu Pizza</Text>
+
+        <Picker 
+          selectedValue={this.state.pizza}
+          onValueChange={(itemValue, itemIndex) => this.setState({pizza: itemValue})}
+        >
+        {
+          pizzasItem
+        }
+
+        </Picker>
+
+        <Text style={styles.pizza} >Você escolheu: {this.state.pizzas[this.state.pizza].nome} </Text>
+        <Text style={styles.pizza} >R$ {this.state.pizzas[this.state.pizza].valor.toFixed(2).replace('.', ',')} </Text>
+
+
+
       </View>
-    );
+    )
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    justifyContent: 'center'
+  },
+  logo: {
+    textAlign: 'center',
+    fontSize: 30,
+    fontWeight: 'bold'
+  },
+  pizza: {
+    textAlign: 'center',
+    fontSize: 25
   }
-})
 
-export default App;
+
+
+});
