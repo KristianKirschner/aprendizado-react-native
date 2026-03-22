@@ -1,101 +1,62 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image, TouchableOpacity, FlatList, Text } from "react-native"
-import Lista from "./android/src/Lista"
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, Keyboard } from "react-native"
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      feed: [
-        {
-          id: '1',
-          nome: 'Lucas Silva',
-          descricao: 'Mais um dia de muitos bugs :)',
-          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil1.png',
-          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto1.png',
-          likeada: true,
-          likers: 1
-        },
-        {
-          id: '2',
-          nome: 'Matheus',
-          descricao: 'Isso sim é ser raiz!!!!!',
-          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil2.png',
-          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto2.png',
-          likeada: false,
-          likers: 0
-        },
-        {
-          id: '3',
-          nome: 'Jose Augusto',
-          descricao: 'Bora trabalhar Haha',
-          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil3.png',
-          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto3.png',
-          likeada: false,
-          likers: 3
-        },
-        {
-          id: '4',
-          nome: 'Gustavo Henrique',
-          descricao: 'Isso sim que é TI!',
-          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil1.png',
-          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto4.png',
-          likeada: false,
-          likers: 1
-        },
-        {
-          id: '5',
-          nome: 'Guilherme',
-          descricao: 'Boa tarde galera do insta...',
-          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil2.png',
-          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto5.png',
-          likeada: false,
-          likers: 32
-        }
-      ]
-    }
+      input: '',
+      nome: 'Kristian'
 
+    };
+
+    this.gravaNome = this.gravaNome.bind(this)
   }
 
+  gravaNome(){
+    this.setState({
+      nome: this.state.input
+    });
+    alert('Salvo com sucesso');
+    Keyboard.dismiss();
+  }
 
+  // Quando o componente é montado na tela
+  async componentDidMount(){
+    await AsyncStorage.getItem('nome').then((valor)=> {
+      this.setState({
+        nome: valor
+      })
+    })
+  }
+
+  // Quando um state é atualizado fazer algo...
+  async componentDidUpdate(_, prevState){
+    const nome = this.state.nome;
+    if (prevState !== this.state){
+    await  AsyncStorage.setItem('nome', nome)
+    }
+  }
 
   render() {
     return (
       <View style={styles.container} >
-        <View style={styles.header}>
-
-          <TouchableOpacity>
-            <Image
-              source={require('./android/src/img/plus.png')}
-              style={styles.plus}
+        <View style={styles.viewInput} >
+          <TextInput
+            style={styles.input}
+            value={this.state.input}
+            onChangeText={(valor) => this.setState({input: valor})}
+            underlineColorAndroid="transparent"
             />
-          </TouchableOpacity>
 
-          <TouchableOpacity>
-              <Image
-                source={require('./android/src/img/logo.png')}
-                style={styles.logo}
-              />
+          <TouchableOpacity onPress={this.gravaNome} >
+            <Text style={styles.botao}>+</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Image
-              source={require('./android/src/img/send.png')}
-              style={styles.send}
-            />
-          </TouchableOpacity>
-
 
         </View>
-
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={this.state.feed}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <Lista data={item} />}
-        />
-
-
+        <Text>{this.state.nome} </Text>
+      
       </View>
     )
   }
@@ -104,27 +65,31 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 20,
+    alignItems: 'center'
   },
-  header: {
+  viewInput: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    height: 55,
-    padding: 5,
-    borderBottomWidth: 0.2,
-    shadowColor: '#000',
-    elevation: 1,
-    paddingRight: 20,
-    paddingLeft: 20
+    alignItems: 'center'
   },
-  send: {
-    width: 23,
-    height: 23,
+  input: {
+    width: 350,
+    height: 40,
+    borderColor: 'black',
+    borderWidth: 1,
+    padding: 10
   },
-  plus: {
-    width: 17,
-    height: 17,
+  botao:{
+    backgroundColor: 'black',
+    color: 'white',
+    height: 40,
+    padding: 10
   },
+  nome: {
+    fontSize: 30,
+    textAlign: 'center',
+    marginTop: 15
+  }
+
 
 });
