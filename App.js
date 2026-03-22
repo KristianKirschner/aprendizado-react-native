@@ -1,36 +1,59 @@
-import Slider from "@react-native-community/slider";
-import { Picker } from "@react-native-picker/picker";
 import React, { Component } from "react";
-import { View, StyleSheet, Text, TextInput, Switch, TouchableOpacity, Alert } from 'react-native'
-
+import { View, StyleSheet, Image, TouchableOpacity, FlatList, Text } from "react-native"
+import Lista from "./android/src/Lista"
 
 export default class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      nome: '',
-      idade: '',
-      sexo: 'Masculino',
-      limite: 10,
-      isEstudante: false,
+      feed: [
+        {
+          id: '1',
+          nome: 'Lucas Silva',
+          descricao: 'Mais um dia de muitos bugs :)',
+          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil1.png',
+          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto1.png',
+          likeada: true,
+          likers: 1
+        },
+        {
+          id: '2',
+          nome: 'Matheus',
+          descricao: 'Isso sim é ser raiz!!!!!',
+          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil2.png',
+          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto2.png',
+          likeada: false,
+          likers: 0
+        },
+        {
+          id: '3',
+          nome: 'Jose Augusto',
+          descricao: 'Bora trabalhar Haha',
+          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil3.png',
+          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto3.png',
+          likeada: false,
+          likers: 3
+        },
+        {
+          id: '4',
+          nome: 'Gustavo Henrique',
+          descricao: 'Isso sim que é TI!',
+          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil1.png',
+          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto4.png',
+          likeada: false,
+          likers: 1
+        },
+        {
+          id: '5',
+          nome: 'Guilherme',
+          descricao: 'Boa tarde galera do insta...',
+          imgperfil: 'https://sujeitoprogramador.com/instareact/fotoPerfil2.png',
+          imgPublicacao: 'https://sujeitoprogramador.com/instareact/foto5.png',
+          likeada: false,
+          likers: 32
+        }
+      ]
     }
-
-  };
-
-  criarConta() {
-    if (this.state.nome === '' || this.state.idade === '') {
-      alert("Existem campos vazios!")
-      return
-    }
-
-    alert(
-      'Conta aberta com sucesso!! \n\n' +
-      'Nome: ' + this.state.nome + '\n' +
-      'Idade: ' + this.state.idade + '\n' +
-      'Sexo: ' + this.state.sexo + ' \n' +
-      'Limite Conta: R$' + this.state.limite.toFixed(2) + '\n' +
-      'Conta Estudante: ' + ((this.state.isEstudante) ? 'Ativo' : 'Inativo')
-    );
 
   }
 
@@ -39,54 +62,38 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.container} >
-        <Text style={styles.logo} >Banco</Text>
-        <View style={styles.areaFormulario} >
-          <Text>Nome:</Text>
-          <TextInput placeholder="Digite seu nome:" onChangeText={(valor) => this.setState({ nome: valor })} />
+        <View style={styles.header}>
+
+          <TouchableOpacity>
+            <Image
+              source={require('./android/src/img/plus.png')}
+              style={styles.plus}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+              <Image
+                source={require('./android/src/img/logo.png')}
+                style={styles.logo}
+              />
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Image
+              source={require('./android/src/img/send.png')}
+              style={styles.send}
+            />
+          </TouchableOpacity>
+
+
         </View>
 
-        <View style={styles.areaFormulario} >
-          <Text>Idade</Text>
-          <TextInput placeholder="Digite sua idade" keyboardType="number-pad" onChangeText={(valor) => this.setState({ idade: valor })} />
-        </View>
-
-        <View style={styles.areaSexo} >
-          <Picker
-            style={styles.pickerSexo}
-            selectedValue={this.state.sexo}
-            onValueChange={(valor) => this.setState({ sexo: valor })}
-          >
-            <Picker.Item value={"Masculino"} label="Masculino" />
-            <Picker.Item value={"Feminino"} label="Feminino" />
-          </Picker>
-        </View>
-
-        <View style={styles.areaSlider} >
-        <Text style={styles.textoSlider} >Defina o seu limite</Text>
-        <Slider
-          minimumTrackTintColor="#CF0000"
-          minimumValue={250}
-          maximumValue={2000}
-          value={this.state.limite}
-          step={100}
-          onValueChange={(limite) => this.setState({ limite: limite })}
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={this.state.feed}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <Lista data={item} />}
         />
-        <Text style={styles.textoSlider}>{this.state.limite} R$ </Text>
-      </View>
-
-      <View style={styles.areaEstudante}>
-        <Text>Você é estudante?</Text>
-        <Switch
-          value={this.state.isEstudante}
-          onValueChange={(valor) => this.setState({ isEstudante: valor })}
-        />
-      </View>
-
-      <View style={styles.areaBotao} >
-        <TouchableOpacity style={styles.botao} onPress={() => this.criarConta()}>
-          <Text style={styles.textoBotao}>Abrir conta</Text>
-        </TouchableOpacity>
-</View>
 
 
       </View>
@@ -97,57 +104,27 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50
   },
-  logo: {
-    fontWeight: 'bold',
-    fontSize: 40,
-    textAlign: 'center'
-  },
-  areaFormulario: {
-    flexDirection: 'column',
-    margin: 10,
-  },
-  areaSexo: {
-    marginRight: 10,
-    marginLeft: 10,
+  header: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingBottom: 5
-  },
-  pickerSexo: {
-    flex: 1
-  },
-  areaSlider: {
-    marginRight: 10,
-    marginLeft: 10,
-  },
-  textoSlider: {
-    textAlign: 'center'
-  },
-  areaEstudante: {
-    flexDirection: "row",
     justifyContent: 'space-between',
-    marginRight: 100,
-    marginLeft: 100,
-    marginTop: 20
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    height: 55,
+    padding: 5,
+    borderBottomWidth: 0.2,
+    shadowColor: '#000',
+    elevation: 1,
+    paddingRight: 20,
+    paddingLeft: 20
   },
-  areaBotao: {
-    flex:1,
-     justifyContent: 'center',
+  send: {
+    width: 23,
+    height: 23,
+  },
+  plus: {
+    width: 17,
+    height: 17,
+  },
 
-  },
-botao:{
- height: 35,
- justifyContent: 'center',
- alignItems: 'center',
- backgroundColor: '#000000',
- borderRadius: 150,
- margin: 20
-},
-  textoBotao:{
-   fontSize: 20,
-   fontWeight: 'bold',
-   color: '#FFFFFF'
-},
 });
