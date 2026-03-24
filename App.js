@@ -1,69 +1,31 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput} from "react-native"
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, Text, StyleSheet, FlatList} from "react-native"
+import api from './src/services/api'
+import Filmes from './src/Filmes'
+
 
 export default function App () {
 
-  const [nome, setNome] = useState("")
-  const [input, setInput] = useState('')
-  const nomeInput = useRef(null);
+    const [filmes, setFilmes] = useState([])
 
-
-
-    // ComponentDidMount
-    useEffect(()=>{
-        async function getStorage() {
-          const nomeStorage = await AsyncStorage.getItem("nomes");
-            if (nomeStorage !== null) {
-              setNome(nomeStorage);
-            }
-          }
-
-        getStorage();
-    }, [])
-
-    // ComponentDidUpdate
-    useEffect(()=>{
-      async function saveStorage() {
-        await AsyncStorage.setItem('nomes', nome)
+    useEffect(() => {
+      async function loadFilmes() {
+        const response = await api.get('r-api/?api=filmes')
+        console.log(response.data)
+        setFilmes(response.data)
       }
 
-      saveStorage();
-    }, [nome])
-    
-    
-    const letrasNome = useMemo(() => {
-      console.log("Mudou a letra")
-      return nome.length
-      
-    }, [nome]);
+      loadFilmes();
 
+    }, [])
 
     return (
       <View style={styles.container} >
-
-        <Text style={styles.texto} > {nome} </Text>
-        <Text style={styles.texto} > {letrasNome} </Text>
-
-        <TextInput
-          value={input}
-          placeholder="digite o nome"
-          onChangeText={(texto) => {setInput(texto)}}
-          ref={nomeInput}
+        <FlatList
+          data={filmes}
+          keyExtractor={(item)=> String(item.id)}
+          renderItem={({item}) =>  <Filmes data={item} />}
         />
-
-        <TouchableOpacity onPress={()=> 
-          {setNome(input) 
-          setInput('')}} >
-          <Text>Altera text</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => {
-          nomeInput.current.focus();
-        }} >
-          <Text>Novo nome</Text>
-        </TouchableOpacity>
-
 
       </View>
     )
@@ -72,13 +34,7 @@ export default function App () {
 
 const styles = StyleSheet.create({
   container:{
-    flex: 1,
-    marginTop: 30
+    flex: 1
   },
-  texto: {
-    color: '#000',
-    fontSize: 35
-  }
-
 
 })
