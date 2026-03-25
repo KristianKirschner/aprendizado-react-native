@@ -1,86 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Text,
-  TextInput,
-  Keyboard,
-  TouchableOpacity,
-} from 'react-native';
-import { api } from './src/services/api';
-import Results from './src/Results';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 export default function App() {
-  const [input, setInput] = useState('19907190');
-  const [cep, setCep] = useState(null);
-  const [cepSelecionado, setCepSelecionado] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [pessoas, setPessoas] = useState(10);
+  const [limiteSup, setLimiteSup] = useState(false);
+  const [limiteInf, setLimiteInf] = useState(false);
 
-  function renderResultado() {
-    if (loading) {
-      return <ActivityIndicator size={45} color={'blue'} />;
-    } else {
+  useEffect(() => {
+    function checarNumeros() {
+      if (pessoas >= 10) {
+        setLimiteSup(true);
+      } else {
+        setLimiteSup(false)
+      };
+      if (pessoas <= 0) {
+        setLimiteInf(true)
+      } else {
+        setLimiteInf(false)
+      }
+    }
+    checarNumeros();
+  }, [pessoas]);
+
+  function renderizarLimite(){
+    if (limiteSup) {
       return(
-        <Results data={cepSelecionado}/>
+        <Text style={{backgroundColor: 'yellow'}} >Restaurante está no seu limite de pessoas</Text>
       )
     }
   }
 
-  useEffect(() => {
-    async function loadCep() {
-      if (!cep) return;
-      let numeroCep = cep;
-      const response = await api.get(`ws/${numeroCep}/json/`);
-      setCepSelecionado({
-        logradouro: response.data.logradouro,
-        bairro: response.data.bairro,
-        cidade: response.data.localidade,
-        uf: response.data.uf,
-        cep: response.data.cep,
-      });
-          
-    setLoading(false)
-    Keyboard.dismiss();
-    }
-    loadCep();
-    
-  }, [cep]);
-
-  function buscar() {
-    setCep(input);
-    setLoading(true)
-  }
-
-  function limpar() {
-    setCep('');
-    setInput('');
-    setCepSelecionado(null);
-    setLoading(false)
-  }
-
   return (
     <View style={styles.container}>
-      <View style={styles.inputBox}>
-        <Text style={styles.titulo}>Digite o CEP desejado</Text>
-        <TextInput
-          style={styles.inputText}
-          placeholder="a"
-          onChangeText={valor => setInput(valor)}
-          value={input}
-        />
+      <Text style={{ fontSize: 25, marginBottom: 10 }}>
+        Pessoas no restaurante
+      </Text>
 
-        <View style={styles.buttonArea}>
-          <TouchableOpacity style={styles.btnBuscar} onPress={buscar}>
-            <Text style={styles.btnTexto}>Buscar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnLimpar} onPress={limpar}>
-            <Text style={styles.btnTexto}>Limpar</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.caixaNumero}>
+        <Text style={{ color: 'white', fontSize: 40 }}> {pessoas} </Text>
       </View>
 
-      {renderResultado()}
+      {limiteSup &&
+        <Text style={{margin: 10, padding: 2, backgroundColor: '#F6B136'}} >Restaurante está no limite de pessoas</Text>
+      }
+
+      <View style={styles.caixaInput}>
+        <TouchableOpacity
+          style={styles.botao}
+          onPress={() => setPessoas(pessoas + 1)}
+          disabled={limiteSup}
+        >
+          <Text style={{ color: 'white' }}>Adicionar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setPessoas(pessoas - 1)}
+          style={styles.botao}
+          disabled={limiteInf}
+        >
+          <Text style={{ color: 'white' }}>Remover</Text>
+        </TouchableOpacity>
+    
+      </View>
+
     </View>
   );
 }
@@ -90,50 +71,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAFA',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  inputBox: {
-    marginTop: 40,
+  caixaNumero: {
+    fontSize: 30,
+    backgroundColor: 'black',
+    width: 90,
+    height: 90,
+    textAlign: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '90%',
-  },
-  titulo: {
-    fontWeight: 'bold',
-    fontSize: 28,
-  },
-  inputText: {
-    marginTop: 20,
-    padding: 12,
-    width: '90%',
-    borderWidth: 1,
-    backgroundColor: '#FFFFFF',
-    borderColor: '#00000050',
-    marginBottom: 20,
     borderRadius: 8,
+    textAlign: 'centers',
   },
-  buttonArea: {
+  caixaInput: {
     flexDirection: 'row',
-    width: '90%',
-    justifyContent: 'space-around',
   },
-  btnBuscar: {
-    width: 80,
-    backgroundColor: '#1371D2',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 50,
+  botao: {
+    backgroundColor: '#007AFE',
     borderRadius: 8,
-  },
-  btnLimpar: {
     width: 80,
-    backgroundColor: '#DA4918',
-    justifyContent: 'center',
+    height: 35,
+    margin: 20,
     alignItems: 'center',
-    height: 50,
-    borderRadius: 8,
-  },
-  btnTexto: {
-    color: '#FFF',
-    fontSize: 18,
+    justifyContent: 'center',
   },
 });
