@@ -1,10 +1,8 @@
-import axios from "axios";
+import axios from 'axios';
 
-// https://sujeitoprogramador.com/
-// r-api/?api=filmes
-
-const api = axios.create({
-    baseURL: 'https://sujeitoprogramador.com/'
-});
-
-export default api;
+export const api = axios.create({
+    baseURL: "https://api.fxratesapi.com",
+    params: {
+        api_key:'APIKEY'
+    }
+})
