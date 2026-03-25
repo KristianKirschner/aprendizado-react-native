@@ -1,146 +1,139 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ActivityIndicator, Text, TextInput, Keyboard , TouchableOpacity } from "react-native"
-import { PickerMoeda } from './src/PickerMoeda'
-import { api } from './src/services/api'
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+  TextInput,
+  Keyboard,
+  TouchableOpacity,
+} from 'react-native';
+import { api } from './src/services/api';
+import Results from './src/Results';
 
 export default function App() {
-  const [moedas, setMoedas] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [moedaSelecionada, setmoedaSelecionada] = useState(null)
-  const [valorMoeda, setValorMoeda] = useState(null)
-  const [valorConvertido, setValorConvertido] = useState(0)
-  const [moedaBValor, setMoedaBValor] = useState("")
+  const [input, setInput] = useState('19907190');
+  const [cep, setCep] = useState(null);
+  const [cepSelecionado, setCepSelecionado] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  function renderResultado() {
+    if (loading) {
+      return <ActivityIndicator size={45} color={'blue'} />;
+    } else {
+      return(
+        <Results data={cepSelecionado}/>
+      )
+    }
+  }
 
   useEffect(() => {
-    async function loadMoedas() {
-      const response = await api.get("latest")
-
-      let arrayMoedas = [];
-      Object.keys(response.data.rates).map((key) => {
-        arrayMoedas.push({
-          key: key,
-          label: key,
-          value: key
-        })
-      })
-      setMoedas(arrayMoedas)
-      setmoedaSelecionada(arrayMoedas[0].value)
-      setLoading(false)
+    async function loadCep() {
+      if (!cep) return;
+      let numeroCep = cep;
+      const response = await api.get(`ws/${numeroCep}/json/`);
+      setCepSelecionado({
+        logradouro: response.data.logradouro,
+        bairro: response.data.bairro,
+        cidade: response.data.localidade,
+        uf: response.data.uf,
+        cep: response.data.cep,
+      });
+          
+    setLoading(false)
+    Keyboard.dismiss();
     }
-    loadMoedas();
-  }, [])
-
-  async function converter(){
-    if(!moedaBValor || moedaSelecionada === null){
-      return
-    } else {}
-    const response = await api.get(`convert?from=${moedaSelecionada}&to=BRL`);
-
-    let resultado = (response.data.result * parseFloat(moedaBValor) )
-    setValorConvertido(`${resultado.toLocaleString("pt-BR", {style: 'currency', currency: "BRL"})}`)
-    setValorMoeda(moedaBValor)
-    Keyboard.dismiss()
+    loadCep();
     
+  }, [cep]);
+
+  function buscar() {
+    setCep(input);
+    setLoading(true)
   }
 
-  if (loading) {
-    return (
-      <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }} >
-        <ActivityIndicator color="#121212" size={45} />
-        <Text>Carregando...</Text>
-      </View>
-    )
-  } else {
-    return (
-      <View style={styles.container} >
-        <View style={styles.card} >
-          <View style={styles.areaInput} >
-            <Text style={styles.titulo} >Selecione sua moeda</Text>
+  function limpar() {
+    setCep('');
+    setInput('');
+    setCepSelecionado(null);
+    setLoading(false)
+  }
 
-            <PickerMoeda
-              moedas={moedas}
-              moedaSelecionada={moedaSelecionada}
-              onChange={(moeda) => setmoedaSelecionada(moeda)}
-            />
+  return (
+    <View style={styles.container}>
+      <View style={styles.inputBox}>
+        <Text style={styles.titulo}>Digite o CEP desejado</Text>
+        <TextInput
+          style={styles.inputText}
+          placeholder="a"
+          onChangeText={valor => setInput(valor)}
+          value={input}
+        />
 
-            <Text style={styles.titulo} >Digite um valor para converter em (R$)</Text>
-            <TextInput
-              keyboardType="numeric"
-              placeholder="EX: 1.5"
-              value={moedaBValor}
-              onChangeText={(valor) => setMoedaBValor(valor)}
-            />
-          </View>
-          <TouchableOpacity
-          onPress={converter}
-          style={styles.botao}
-          >
-            <Text >Converter</Text>
+        <View style={styles.buttonArea}>
+          <TouchableOpacity style={styles.btnBuscar} onPress={buscar}>
+            <Text style={styles.btnTexto}>Buscar</Text>
           </TouchableOpacity>
-
+          <TouchableOpacity style={styles.btnLimpar} onPress={limpar}>
+            <Text style={styles.btnTexto}>Limpar</Text>
+          </TouchableOpacity>
         </View>
-
-        {valorConvertido !== 0 && (
-          <View style={styles.areaResultado} >
-            <Text style={styles.valorConvertido}>{valorMoeda} {moedaSelecionada} </Text>
-            <Text style={{ fontSize: 18, margin: 8, fontWeight: '500' }}>coresponde a</Text>
-            <Text style={styles.valorConvertido}>{valorConvertido}</Text>
-          </View>
-        )}
       </View>
-    )
-  }
-}
 
+      {renderResultado()}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
-    alignItems: 'center'
+    backgroundColor: '#FAFAFA',
+    alignItems: 'center',
+  },
+  inputBox: {
+    marginTop: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%',
   },
   titulo: {
-    color: '#0000',
-    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5
-  },
-  card: {
-    backgroundColor: '#FFF',
-    marginTop: 30,
-    borderTopRightRadius: 8,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    width: '90%'
-  },
-  botao: {
-    height: 45,
-    backgroundColor: 'red',
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8
-  },
-  areaInput: {
-    padding: 20,
-  },
-  areaResultado: {
-    width: '90%',
-    backgroundColor: 'white',
-    marginTop: 34,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24
-  },
-  valorConvertido: {
     fontSize: 28,
-    color: 'black',
-    fontWeight: 'bold'
-  }
-
-
-
-})
+  },
+  inputText: {
+    marginTop: 20,
+    padding: 12,
+    width: '90%',
+    borderWidth: 1,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#00000050',
+    marginBottom: 20,
+    borderRadius: 8,
+  },
+  buttonArea: {
+    flexDirection: 'row',
+    width: '90%',
+    justifyContent: 'space-around',
+  },
+  btnBuscar: {
+    width: 80,
+    backgroundColor: '#1371D2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 50,
+    borderRadius: 8,
+  },
+  btnLimpar: {
+    width: 80,
+    backgroundColor: '#DA4918',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 50,
+    borderRadius: 8,
+  },
+  btnTexto: {
+    color: '#FFF',
+    fontSize: 18,
+  },
+});
