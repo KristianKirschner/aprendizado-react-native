@@ -1,49 +1,31 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Text, Animated } from 'react-native';
+import { View, StyleSheet, Text, Animated, TouchableOpacity, Touchable } from 'react-native';
+import * as Animatable from 'react-native-animatable'
 
 export default function App() {
-  const larAnimado = useRef(new Animated.Value(0)).current;
-  const altAnimado = useRef(new Animated.Value(50)).current;
+ 
+  const buttonRef = useRef(null);
+  const ButtonAnimated = Animatable.createAnimatableComponent(TouchableOpacity);
 
-  useEffect(() => {
-    Animated.sequence([    
-      Animated.timing(larAnimado, {
-      toValue: 100,
-      duration: 1000,
-      useNativeDriver: false,
-    }),
-    Animated.timing(altAnimado, {
-      toValue: 100,
-      duration: 1000,
-      useNativeDriver: false
-    })
-  ]).start(()=>{
-    alert('Animacao finalizada')
-  })
-
-  }, []);
-
-  let porcentagemLargura = larAnimado.interpolate({
-    inputRange: [0, 100],
-    outputRange: ['0%', '100%']
-  })
-
-  let porcentagemAltura = altAnimado.interpolate({
-    inputRange: [50, 100],
-    outputRange: ['5%', '100%']
-  })
+  function handleClick(){
+    buttonRef.current.bounce();
+  }
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={{
-          width: porcentagemLargura,
-          height: porcentagemAltura,
-          backgroundColor: '#4169e1',
-          justifyContent: 'center',
-        }}
+
+
+      <ButtonAnimated
+        style={styles.button}
+        animation='pulse'
+        ref={buttonRef}
+        onPress={handleClick}
       >
-      </Animated.View>
+        <Text
+          style={{color: 'white'}}
+        >Animar</Text>
+      </ButtonAnimated>
+
     </View>
   );
 }
@@ -54,4 +36,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  button:{
+    width: '70%',
+    height: 30,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
+
 });
