@@ -1,31 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Text, Animated, TouchableOpacity, Touchable } from 'react-native';
-import * as Animatable from 'react-native-animatable'
+import feather, { Feather } from '@react-native-vector-icons/feather'
 
 export default function App() {
  
-  const buttonRef = useRef(null);
-  const ButtonAnimated = Animatable.createAnimatableComponent(TouchableOpacity);
-
-  function handleClick(){
-    buttonRef.current.bounce();
-  }
 
   return (
     <View style={styles.container}>
-
-
-      <ButtonAnimated
-        style={styles.button}
-        animation='pulse'
-        ref={buttonRef}
-        onPress={handleClick}
-      >
-        <Text
-          style={{color: 'white'}}
-        >Animar</Text>
-      </ButtonAnimated>
-
+      
+    <Feather
+      name='heart'
+      size={40}
+      color='#000'
+    />
     </View>
   );
 }
@@ -36,12 +23,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  button:{
-    width: '70%',
-    height: 30,
-    backgroundColor: '#000',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }
+
 
 });
