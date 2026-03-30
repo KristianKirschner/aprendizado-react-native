@@ -1,28 +1,37 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Text, Animated, TouchableOpacity, Touchable } from 'react-native';
-import feather, { Feather } from '@react-native-vector-icons/feather'
+import React from 'react';
 
-export default function App() {
- 
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
 
-  return (
-    <View style={styles.container}>
-      
-    <Feather
-      name='heart'
-      size={40}
-      color='#000'
-    />
-    </View>
-  );
+import Home from './src/pages/Home'
+import Sobre from './src/pages/Sobre'
+
+const Stack = createNativeStackNavigator();
+
+export default function App(){
+
+  return(
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen 
+        name='Home' component={Home} 
+        options={{
+          title:'Início',
+          headerStyle:{
+            backgroundColor: '#000'
+          },
+          headerTintColor: '#fff'
+        }}
+        />
+        <Stack.Screen 
+        name='Sobre' component={Sobre}
+        options={{
+          headerShown: false
+        }}
+        />        
+      </Stack.Navigator>
+
+    </NavigationContainer>
+  )
+
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-
-});
