@@ -1,19 +1,21 @@
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, StackActions } from "@react-navigation/native";
 
-export default function Home(){
+export default function Contato(){
 
     const navigation = useNavigation();
 
   function navegaSobre(){
-    navigation.navigate('Sobre', {nome: 'Kristian', email: 'kristianlll@hotamil.com'})
+    navigation.goBack();
   }
 
     return(
         <View style={styles.container} >
-            <Text>Home</Text>
-            <Button title="Ir para sobre" onPress={navegaSobre} / >
+            <Text>Pagina contato</Text>
+            <Button title="Voltar" onPress={navegaSobre} / >
+            <Button title="Voltar tudo" onPress={() => navigation.dispatch(StackActions.popToTop)} / >
+
         </View>
     )
 }
