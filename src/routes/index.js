@@ -1,64 +1,48 @@
 import React from 'react';
 
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
-
 import StackRoutes from './stackRoutes'
 import Sobre from '../pages/Sobre'
 import Contato from '../pages/Contato'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Feather from '@react-native-vector-icons/feather';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import CustomDrawer from '../components/CustomDrawer'
 
-
-const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
 export default function Routes(){
 
 
   return(
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarHideOnKeyboard: true,
-          tabBarShowLabel: false,
-          tabBarActiveTintColor: 'blue',
-          tabBarInactiveTintColor: 'gray',
-          tabBarLabelPosition: 'beside-icon',
-          tabBarStyle: {
-            backgroundColor: '#FFF',
-            borderTopWidth: 0,
-            alignItems: 'center',
-          },
-        }}
-      >
-        <Tab.Screen
-          name='HomeStack'
-          component={StackRoutes}
-          options={{
-            tabBarIcon: ({color, size}) => {
-             return <Feather  name='home' color={color} size={size}/>
-            }
-          }}
-        />
-        <Tab.Screen
-          name='Sobre'
-          component={Sobre}
-          options={{
-            tabBarIcon: ({color, size}) => {
-             return <Feather  name='file-text' color={color} size={size}/>
-            }
-          }}
-        />
-        <Tab.Screen
-          name='Contato'
-          component={Contato}
-          options={{
-            tabBarIcon: ({color, size}) => {
-             return <Feather  name='phone-call' color={color} size={size}/>
-            }
-          }}
-        />
-      </Tab.Navigator>
+    <Drawer.Navigator
+    drawerContent={CustomDrawer}
+      screenOptions={{
+        headerShown: false,
+        drawerStyle:{
+          backgroundColor: 'white',
+        },
+        drawerActiveBackgroundColor: '#1b7c80',
+        drawerActiveTintColor: 'white',
+        drawerInactiveBackgroundColor: '#e7e7e7',
+        drawerItemStyle:{
+          borderRadius: 7,
+          marginTop: 10
+        }
+      }}
+    >
+      <Drawer.Screen
+        name='HomeStack'
+        component={StackRoutes}
+      />
+
+      <Drawer.Screen
+      name='Sobre'
+      component={Sobre}
+      />
+
+      <Drawer.Screen
+      name='Contato'
+      component={Contato}
+      />
+    </Drawer.Navigator>
   )
 
 }

@@ -14,6 +14,8 @@ export default function Home(){
         <View style={styles.container} >
             <Text>Home</Text>
             <Button title="Ir para detalhes" onPress={navegaDetalhes} / >
+            <Button title="Abrir drawer" onPress={() => navigation.openDrawer()} / >
+
         </View>
     )
 }
