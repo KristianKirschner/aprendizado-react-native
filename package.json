@@ -12,7 +12,8 @@
   "dependencies": {
     "firebase": "^12.11.0",
     "react": "19.2.3",
-    "react-native": "0.84.1"
+    "react-native": "0.84.1",
+    "react-native-dotenv": "^3.4.11"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
