@@ -1,39 +1,58 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { cloneElement, useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  TextInput,
+  FlatList,
+} from 'react-native';
 import { db } from './src/firebaseConnection';
-import { doc, getDoc, onSnapshot, setDoc, collection, addDoc } from 'firebase/firestore'; 
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  collection,
+  addDoc,
+  getDocs,
+} from 'firebase/firestore';
+import { UserList } from './src/users';
 
-export default function App(){
+export default function App() {
+  const [nome, setNome] = useState('Carregando...');
+  const [showForm, setShowForm] = useState(true);
+  const [users, setUsers] = useState([]);
 
-  const [nome, setNome] = useState("Carregando...")
-  
-  useEffect(()=>{
+  useEffect(() => {
     async function getData() {
+      const usersRef = collection(db, 'users');
 
-      // busca no banco apenas uma vez
-/*    const docref = doc(db, "users", "1")
-      getDoc(docref)
-      .then((snapshot)=>{
-        console.log(snapshot.data())
-        setNome(snapshot.data()?.nome)
-      })
-      .catch ((erro) => {
-        console.log(erro)
-      })  */
-
-      // busca no banco em tempo real
-      onSnapshot(doc(db, "users", "1"), (doc) => {
-        setNome(doc.data()?.nome)
-      })
-
-
+      getDocs(usersRef)
+        .then(snapshot => {
+          let list = [];
+          snapshot.forEach(doc => {
+            list.push({
+              id: doc.id,
+              nome: doc.data().nome,
+              email: doc.data().email,
+              cargo: doc.data().cargo,
+              idade: doc.data().idade,
+            });
+          });
+          setUsers(list);
+          setNome(users[0]?.nome)
+        })
+        .catch(erro => {
+          console.log(erro);
+        });
     }
     getData();
-  }, [])
+  }, []);
 
-  async function handleRegistro(){
+  async function handleRegistro() {
     // setar manualmente o usuario
-/*     await setDoc(doc(db, "users", "3"), {
+    /*     await setDoc(doc(db, "users", "3"), {
       nome: "Jose",
       idade: "30",
       cargo: "Backend"
@@ -45,44 +64,133 @@ export default function App(){
       console.log("Erro" + erro)
     }) */
 
-      //adicionar dinamicamente o usuario
-  await addDoc(collection(db,"users"), {
+    //adicionar dinamicamente o usuario
+    await addDoc(collection(db, 'users'), {
       nome: pessoa.nome,
-      idade: pessoa.email,
+      email: pessoa.email,
       cargo: pessoa.cargo,
-  })
+      idade: pessoa.idade,
+    })
+      .then(() => {
+        setPessoa({
+          nome: '',
+          email: '',
+          cargo: '',
+          idade: '',
+        }),
+          console.log('CADASTRADO');
+      })
+      .catch(erro => {
+        console.log(erro);
+      });
   }
-  
-  const [pessoa,setPessoa] = useState({nome: '', email: '', idade: '', cargo: ''})
 
-  return(
-    <View style={styles.container} >
-      <Text style={{textAlign: 'center'}} >Olá {nome}!</Text>
+  const [pessoa, setPessoa] = useState({
+    nome: '',
+    email: '',
+    idade: '',
+    cargo: '',
+  });
 
-      <TextInput placeholder='Nome' value={pessoa.nome} onChangeText={(valor) => {setPessoa({...pessoa, nome: valor})}} />
-      <TextInput placeholder='Email' value={pessoa.email} onChangeText={(valor) => {setPessoa({...pessoa, email: valor})}}  />
-      <TextInput placeholder='Cargo'  value={pessoa.cargo} onChangeText={(valor) => {setPessoa({...pessoa, cargo: valor})}}  />
+  return (
+    <View style={styles.container}>
+      {showForm && (
+        <View style={{ width: '100%' }}>
+          <Text style={styles.nomeTitulo}>Olá {nome}!</Text>
 
-      <TouchableOpacity style={styles.button}
-        onPress={handleRegistro}
+          <TextInput
+            style={styles.input}
+            placeholder="Nome"
+            value={pessoa.nome}
+            onChangeText={valor => {
+              setPessoa({ ...pessoa, nome: valor });
+            }}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={pessoa.email}
+            onChangeText={valor => {
+              setPessoa({ ...pessoa, email: valor });
+            }}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Cargo"
+            value={pessoa.cargo}
+            onChangeText={valor => {
+              setPessoa({ ...pessoa, cargo: valor });
+            }}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Idade"
+            value={pessoa.idade}
+            onChangeText={valor => {
+              setPessoa({ ...pessoa, idade: valor });
+            }}
+          />
+
+          <TouchableOpacity
+            onPress={handleRegistro}
+            style={styles.buttonSubmit}
+          >
+            <Text style={styles.buttonText}>Adicionar</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      <TouchableOpacity
+        onPress={() => {
+          setShowForm(!showForm);
+        }}
       >
-        <Text style={styles.buttonText} >Adicionar</Text>
+        <Text> {showForm ? 'Fechar formulário' : 'Abrir formulário'} </Text>
       </TouchableOpacity>
 
+        <Text style={{ marginTop: 10, fontSize: 20, marginBottom: 5 }}>
+          Usuarios
+        </Text>
+        <FlatList
+          style={{width: '100%'}}
+          data={users}
+          keyExtractor={item => String(item.id)}
+          renderItem={({ item }) => <UserList data={item} />}
+        />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     marginTop: 50,
+    alignItems: 'center',
+    flex: 1
   },
-  button: {
-    backgroundColor: 'black',
-    alignSelf: 'flex-start'
-  }, 
+  nomeTitulo: {
+    fontSize: 28,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#000',
+    padding: 10,
+    height: 45,
+    marginTop: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 8,
+  },
+  buttonSubmit: {
+    marginTop: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    backgroundColor: '#000',
+    marginLeft: 10,
+    marginRight: 10,
+    height: 45,
+    justifyContent: 'center',
+  },
   buttonText: {
-    padding: 8,
-    color: 'white'
-  }
-})
+    color: '#FFF',
+  },
+});
