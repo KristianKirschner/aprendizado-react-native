@@ -17,6 +17,7 @@ import {
   collection,
   addDoc,
   getDocs,
+  updateDoc,
 } from 'firebase/firestore';
 import { UserList } from './src/users';
 
@@ -24,6 +25,7 @@ export default function App() {
   const [nome, setNome] = useState('Carregando...');
   const [showForm, setShowForm] = useState(true);
   const [users, setUsers] = useState([]);
+  const [isEditing, setIsEditing] = useState("");
 
   useEffect(() => {
     async function getData() {
@@ -80,7 +82,7 @@ export default function App() {
       .catch(erro => {
         console.log(erro);
       });
-      Keyboard.dismiss()
+    Keyboard.dismiss();
   }
 
   const [pessoa, setPessoa] = useState({
@@ -89,6 +91,34 @@ export default function App() {
     idade: '',
     cargo: '',
   });
+
+  function editUser(data) {
+    setPessoa({
+      nome: data.nome,
+      email: data.email,
+      idade: data.idade,
+      cargo: data.cargo,
+    });
+    setIsEditing(data.id);
+  }
+
+  async function handleEditUser(){
+    const docRef = doc(db, "users", isEditing)
+    await updateDoc(docRef, {
+      nome: pessoa.nome,
+      email: pessoa.email,
+      idade: pessoa.idade,
+      cargo: pessoa.cargo
+    })
+        setPessoa({
+      nome: "",
+      email: "",
+      idade: "",
+      cargo: "",
+    });
+    setIsEditing("");
+    Keyboard.dismiss();
+  }
 
   return (
     <View style={styles.container}>
@@ -129,12 +159,21 @@ export default function App() {
             }}
           />
 
-          <TouchableOpacity
-            onPress={handleRegistro}
-            style={styles.buttonSubmit}
-          >
-            <Text style={styles.buttonText}>Adicionar</Text>
-          </TouchableOpacity>
+          {isEditing !== "" ? (
+            <TouchableOpacity
+              onPress={handleEditUser}
+              style={styles.buttonEdit}
+            >
+              <Text style={styles.buttonText}>Editar</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={handleRegistro}
+              style={styles.buttonSubmit}
+            >
+              <Text style={styles.buttonText}>Adicionar</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
       <TouchableOpacity
@@ -152,7 +191,9 @@ export default function App() {
         style={{ width: '100%' }}
         data={users}
         keyExtractor={item => String(item.id)}
-        renderItem={({ item }) => <UserList data={item} />}
+        renderItem={({ item }) => (
+          <UserList data={item} handleEdit={item => editUser(item)} />
+        )}
       />
     </View>
   );
@@ -191,4 +232,14 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
   },
+  buttonEdit: {
+    marginTop: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    backgroundColor: '#052fa0',
+    marginLeft: 10,
+    marginRight: 10,
+    height: 45,
+    justifyContent: 'center',
+  }
 });
