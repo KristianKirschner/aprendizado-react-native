@@ -6,6 +6,7 @@ import {
   View,
   TextInput,
   FlatList,
+  Keyboard,
 } from 'react-native';
 import { db } from './src/firebaseConnection';
 import {
@@ -28,24 +29,20 @@ export default function App() {
     async function getData() {
       const usersRef = collection(db, 'users');
 
-      getDocs(usersRef)
-        .then(snapshot => {
-          let list = [];
-          snapshot.forEach(doc => {
-            list.push({
-              id: doc.id,
-              nome: doc.data().nome,
-              email: doc.data().email,
-              cargo: doc.data().cargo,
-              idade: doc.data().idade,
-            });
+      onSnapshot(usersRef, snapshot => {
+        let list = [];
+        snapshot.forEach(item => {
+          list.push({
+            id: item.id,
+            nome: item.data().nome,
+            email: item.data().email,
+            cargo: item.data().cargo,
+            idade: item.data().idade,
           });
-          setUsers(list);
-          setNome(users[0]?.nome)
-        })
-        .catch(erro => {
-          console.log(erro);
         });
+        setUsers(list);
+        setNome(list[0]?.nome);
+      });
     }
     getData();
   }, []);
@@ -83,6 +80,7 @@ export default function App() {
       .catch(erro => {
         console.log(erro);
       });
+      Keyboard.dismiss()
   }
 
   const [pessoa, setPessoa] = useState({
@@ -147,15 +145,15 @@ export default function App() {
         <Text> {showForm ? 'Fechar formulário' : 'Abrir formulário'} </Text>
       </TouchableOpacity>
 
-        <Text style={{ marginTop: 10, fontSize: 20, marginBottom: 5 }}>
-          Usuarios
-        </Text>
-        <FlatList
-          style={{width: '100%'}}
-          data={users}
-          keyExtractor={item => String(item.id)}
-          renderItem={({ item }) => <UserList data={item} />}
-        />
+      <Text style={{ marginTop: 10, fontSize: 20, marginBottom: 5 }}>
+        Usuarios
+      </Text>
+      <FlatList
+        style={{ width: '100%' }}
+        data={users}
+        keyExtractor={item => String(item.id)}
+        renderItem={({ item }) => <UserList data={item} />}
+      />
     </View>
   );
 }
@@ -164,7 +162,7 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 50,
     alignItems: 'center',
-    flex: 1
+    flex: 1,
   },
   nomeTitulo: {
     fontSize: 28,
