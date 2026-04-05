@@ -1,66 +1,65 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { db } from './firebaseConnection';
-import { deleteDoc, doc } from 'firebase/firestore';
 
-export function UserList({ data, handleEdit }) {
-  async function handleDeleteItem() {
-    const docRef = doc(db, "users", data.id);
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { db } from './firebaseConnection'
+import { deleteDoc, doc } from 'firebase/firestore'
+
+export function UsersList({ data, handleEdit }){
+
+  async function handleDeleteItem(){ 
+    const docRef = doc(db, "users", data.id)
     await deleteDoc(docRef)
-  };
+  }
 
   function handleEditUser(){
     handleEdit(data);
-  };
+  }
 
-  return (
+
+  return(
     <View style={styles.container}>
-      <View>
-        <Text style={styles.text}>Nome: {data.nome} </Text>
-        <Text style={styles.text}>Email: {data.email} </Text>
-        <Text style={styles.text}>Cargo: {data.cargo} </Text>
-        <Text style={styles.text}>Idade: {data.idade} </Text>
-      </View>
-      <View style={styles.deleteBox}>
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteItem}>
-          <Text style={{color: 'white'}} >Deletar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.editButton} onPress={handleEditUser}>
-          <Text style={{color: 'white'}} >Editar</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.item}>Nome: {data.nome}</Text>
+      <Text style={styles.item}>Idade: {data.idade}</Text>
+      <Text style={styles.item}>Cargo: {data.cargo}</Text>
+
+      <TouchableOpacity style={styles.button} onPress={handleDeleteItem}>
+        <Text style={styles.buttonText}>Deletar usuario</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.buttonEdit} onPress={handleEditUser}>
+        <Text style={styles.buttonText}>Editar usuario</Text>
+      </TouchableOpacity>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#d4d4d4',
-    marginLeft: 10,
-    marginRight: 10,
-    marginBottom: 5,
-    marginTop: 5,
-    padding: 10,
-    justifyContent: 'space-between'
+  container:{
+    backgroundColor: "#f0f0f0",
+    padding: 8,
+    borderRadius: 4,
+    marginBottom: 14,
   },
-  text: {
-    color: '#424242',
+  item:{
+    color: "#000",
+    fontSize: 16,
   },
-  deleteBox: {
-    justifyContent: 'center'
+  button:{
+    backgroundColor: "#B3261E",
+    alignSelf: "flex-start",
+    padding: 4,
+    borderRadius: 4,
+    marginTop: 16
   },
-  deleteButton: {
-    backgroundColor: 'red',
-    padding: 5,
-    borderRadius: 8
+  buttonText: {
+    color: "#FFF",
+    paddingLeft: 8,
+    paddingRight: 8,
   },
-  editButton: {
-    backgroundColor: '#125f83',
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    marginTop: 10,
+  buttonEdit:{
+    backgroundColor: "#000",
+    alignSelf: "flex-start",
+    padding: 4,
+    borderRadius: 4,
+    marginTop: 16
   }
-});
+})
