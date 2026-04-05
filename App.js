@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { auth } from './src/firebaseConnection'
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import {FormUsers} from './src/FormUsers'
 
 export default function App() {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("")
   const [authUser, setAuthUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(()=>{
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -16,8 +18,11 @@ export default function App() {
           email: user.email,
           uid: user.uid
         })
+        setLoading(false)
         return
       }
+      setAuthUser(null)
+      setLoading(false)
     })
   },[])
 
@@ -52,10 +57,14 @@ export default function App() {
 
   }
 
+  if (authUser) {
+    return(<FormUsers/>)
+  }
+
  return (
   <View style={styles.container}>
 
-    <Text>Usuário logado: {authUser &&  authUser.email } </Text>
+    {loading && <Text>Carregando informações</Text>}
 
     <Text style={{ marginLeft: 8, fontSize: 18, color: "#000" }}>Email:</Text>
     <TextInput
@@ -82,9 +91,12 @@ export default function App() {
       <Text style={styles.buttonText}>Fazer login</Text>
     </TouchableOpacity>
 
+    { authUser && (
     <TouchableOpacity style={[styles.button, {marginTop: 8,}]} onPress={handleLogout}>
       <Text style={styles.buttonText}>Deslogar</Text>
     </TouchableOpacity>
+    )
+    }
   </View>
   );
 }

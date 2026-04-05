@@ -1,209 +1,201 @@
-import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList } from 'react-native';
-import { db } from './firebaseConnection'
-import { doc, getDoc, onSnapshot, setDoc, collection, addDoc, getDocs, updateDoc } from 'firebase/firestore'
-import { UsersList } from './users'
-
+import { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  FlatList,
+} from 'react-native';
+import { db, auth } from './firebaseConnection';
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+} from 'firebase/firestore';
+import { UsersList } from './users';
+import { signOut } from 'firebase/auth';
 
 export function FormUsers() {
-  const [nome, setNome] = useState("")
-  const [idade, setIdade] = useState("")
-  const [cargo, setCargo] = useState("")
+  const [nome, setNome] = useState('');
+  const [idade, setIdade] = useState('');
+  const [cargo, setCargo] = useState('');
 
   const [users, setUsers] = useState([]);
 
   const [showForm, setShowForm] = useState(true);
-  const [isEditing, setIsEditing] = useState("");
+  const [isEditing, setIsEditing] = useState('');
 
   useEffect(() => {
+    async function getDados() {
+      const usersRef = collection(db, 'users');
+      onSnapshot(usersRef, snapshot => {
+        let lista = [];
 
-    async function getDados(){
+        snapshot.forEach(doc => {
+          lista.push({
+            id: doc.id,
+            nome: doc.data().nome,
+            idade: doc.data().idade,
+            cargo: doc.data().cargo,
+          });
+        });
 
-    const usersRef = collection(db, "users");
-    onSnapshot(usersRef, (snapshot) => {
-      let lista = [];
-
-      snapshot.forEach((doc) => {
-        lista.push({
-          id: doc.id,
-          nome: doc.data().nome,
-          idade: doc.data().idade,
-          cargo: doc.data().cargo
-        })
-      })
-
-      setUsers(lista);
-
-    })
-
-
-    // getDocs(usersRef)
-    // .then((snapshot) => {
-    //   let lista = [];
-
-    //   snapshot.forEach((doc) => {
-    //     lista.push({
-    //       id: doc.id,
-    //       nome: doc.data().nome,
-    //       idade: doc.data().idade,
-    //       cargo: doc.data().cargo
-    //     })
-    //   })
-
-    //   setUsers(lista);
-
-    // })
-    // .catch((err) => {
-    //   console.log(err);
-    // })
-
-
-
+        setUsers(lista);
+      });
     }
 
-
     getDados();
+  }, []);
 
-  }, [])
-
-
-  async function handleRegister(){
-    await addDoc(collection(db, "users"), {
+  async function handleRegister() {
+    await addDoc(collection(db, 'users'), {
       nome: nome,
       idade: idade,
       cargo: cargo,
     })
-    .then(() => {
-      console.log("CADASTRADO COM SUCESSO")
-      setNome("")
-      setIdade("")
-      setCargo("")
-    })
-    .catch((err) => {
-      console.log(err)
-    })
-
+      .then(() => {
+        console.log('CADASTRADO COM SUCESSO');
+        setNome('');
+        setIdade('');
+        setCargo('');
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
-  function handleToggle(){
+  function handleToggle() {
     setShowForm(!showForm);
   }
 
-
-  function editUser(data){
-    setNome(data.nome)
-    setIdade(data.idade)
-    setCargo(data.cargo)
+  function editUser(data) {
+    setNome(data.nome);
+    setIdade(data.idade);
+    setCargo(data.cargo);
     setIsEditing(data.id);
   }
 
-  async function handleEditUser(){
-    const docRef = doc(db, "users", isEditing)
+  async function handleEditUser() {
+    const docRef = doc(db, 'users', isEditing);
     await updateDoc(docRef, {
       nome: nome,
       idade: idade,
       cargo: cargo,
-    })
+    });
 
-    setNome("")
-    setCargo("")
-    setIdade("")
-    setIsEditing("");
-
+    setNome('');
+    setCargo('');
+    setIdade('');
+    setIsEditing('');
   }
 
- return (
-  <View style={styles.container}>
-    { showForm && (
-      <View>
-        <Text style={styles.label}>Nome:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite seu nome..."
-          value={nome}
-          onChangeText={ (text) => setNome(text) } 
-        />
+  async function handleLogout() {
+    await signOut(auth)
+  }
 
-        <Text style={styles.label}>Idade:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua idade..."
-          value={idade}
-          onChangeText={ (text) => setIdade(text) } 
-        />
+  return (
+    <View style={styles.container}>
+      {showForm && (
+        <View>
+          <Text style={styles.label}>Nome:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite seu nome..."
+            value={nome}
+            onChangeText={text => setNome(text)}
+          />
 
-        <Text style={styles.label}>Cargo:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite o seu cargo..."
-          value={cargo}
-          onChangeText={ (text) => setCargo(text) } 
-        />
+          <Text style={styles.label}>Idade:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite sua idade..."
+            value={idade}
+            onChangeText={text => setIdade(text)}
+          />
 
-        {isEditing !== "" ? (
-          <TouchableOpacity style={styles.button} onPress={handleEditUser}>
-            <Text style={styles.buttonText}>Editar usuário</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Adicionar</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    )}
+          <Text style={styles.label}>Cargo:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite o seu cargo..."
+            value={cargo}
+            onChangeText={text => setCargo(text)}
+          />
 
-    <TouchableOpacity onPress={handleToggle} style={{ marginTop: 8}}>
-      <Text style={{ textAlign:"center", color: "#000" }}>
-        {showForm ? "Esconder formulário" : "Mostrar formulário"}
+          {isEditing !== '' ? (
+            <TouchableOpacity style={styles.button} onPress={handleEditUser}>
+              <Text style={styles.buttonText}>Editar usuário</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleRegister}>
+              <Text style={styles.buttonText}>Adicionar</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      <TouchableOpacity onPress={handleToggle} style={{ marginTop: 8 }}>
+        <Text style={{ textAlign: 'center', color: '#000' }}>
+          {showForm ? 'Esconder formulário' : 'Mostrar formulário'}
+        </Text>
+      </TouchableOpacity>
+
+      <Text
+        style={{ marginTop: 14, marginLeft: 8, fontSize: 20, color: '#000' }}
+      >
+        Usuários:
       </Text>
-    </TouchableOpacity>
 
+      <FlatList
+        style={styles.list}
+        data={users}
+        keyExtractor={item => String(item.id)}
+        renderItem={({ item }) => (
+          <UsersList data={item} handleEdit={item => editUser(item)} />
+        )}
+      />
 
-    <Text style={{ marginTop: 14, marginLeft: 8, fontSize: 20, color: "#000"}}>
-      Usuários:
-    </Text>
-
-    <FlatList
-      style={styles.list}
-      data={users}
-      keyExtractor={ (item) => String(item.id) }
-      renderItem={ ({ item }) => <UsersList data={item} handleEdit={ (item) => editUser(item) } /> }
-    />
-
-
-  </View>
+      <TouchableOpacity onPress={handleLogout}>
+        <Text>Sair da conta</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container:{
-    flex:1, 
+  container: {
+    flex: 1,
   },
-  button:{
-    backgroundColor: "#000",
+  button: {
+    backgroundColor: '#000',
     marginLeft: 8,
     marginRight: 8,
   },
-  buttonText:{
+  buttonText: {
     padding: 8,
-    color: "#FFF",
-    textAlign: 'center'
+    color: '#FFF',
+    textAlign: 'center',
   },
-  label:{
-    color: "#000", 
-    fontSize: 18, 
+  label: {
+    color: '#000',
+    fontSize: 18,
     marginBottom: 4,
     marginLeft: 8,
   },
-  input:{
+  input: {
     borderWidth: 1,
     marginLeft: 8,
     marginRight: 8,
     marginBottom: 8,
   },
-  list:{
+  list: {
     marginTop: 8,
     marginLeft: 8,
     marginRight: 8,
-  }
-})
+  },
+});
