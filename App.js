@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { auth } from './src/firebaseConnection'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
 export default function App() {
 
@@ -9,9 +9,26 @@ export default function App() {
   const [senha, setSenha] = useState("")
   const [authUser, setAuthUser] = useState(null)
 
+  useEffect(()=>{
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user){
+        setAuthUser({
+          email: user.email,
+          uid: user.uid
+        })
+        return
+      }
+    })
+  },[])
+
   async function handleCreateUser(){
    const user = await createUserWithEmailAndPassword(auth, email, senha)
    console.log(user);
+  }
+
+  async function handleLogout() {
+    await signOut(auth);
+    setAuthUser(null)
   }
 
   function handleLogin() {
@@ -63,6 +80,10 @@ export default function App() {
 
     <TouchableOpacity style={[styles.button, {marginTop: 8,}]} onPress={handleLogin}>
       <Text style={styles.buttonText}>Fazer login</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={[styles.button, {marginTop: 8,}]} onPress={handleLogout}>
+      <Text style={styles.buttonText}>Deslogar</Text>
     </TouchableOpacity>
   </View>
   );
