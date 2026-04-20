@@ -2,10 +2,12 @@ import notifee, {
   AndroidImportance,
   AuthorizationStatus,
   EventType,
+  RepeatFrequency,
   TriggerType,
 } from '@notifee/react-native';
 import { Button, View } from 'react-native';
 import { useEffect, useState } from 'react';
+import { type } from 'firebase/firestore/pipelines';
 
 export default function App() {
   const [statusNotification, setStatusNotification] = useState(false);
@@ -118,12 +120,44 @@ export default function App() {
     console.log('IDs:', ids);
   }
 
+  // notificação recorrente
+  async function handleScheduleWeekly() {
+    const date = new Date(Date.now());
+
+    date.setSeconds(date.getSeconds() + 10);
+
+    const trigger = {
+      type: TriggerType.TIMESTAMP,
+      timestamp: date.getTime(),
+      repeatFrequency: RepeatFrequency.WEEKLY,
+    };
+
+    await notifee.createTriggerNotification(
+      {
+        title: 'lembrete semanal',
+        body: 'ESTUDAR',
+        android: {
+          channelId: 'lembrete',
+          importance: AndroidImportance.HIGH,
+          pressAction: {
+            id: 'default',
+          },
+        },
+      },
+      trigger,
+    );
+  }
+
   return (
     <View>
       <Button title="Mostrar notificação" onPress={handleNotification} />
-      <Button title="Agendar notificação" onPress={handleScheduleNotification} />
+      <Button
+        title="Agendar notificação"
+        onPress={handleScheduleNotification}
+      />
       <Button title="Listar notificações" onPress={handleListNotification} />
       <Button title="Cancelar notificação" onPress={handleCancelNotification} />
+      <Button title="Agendar semanal" onPress={handleScheduleWeekly} />
     </View>
   );
 }
