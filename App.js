@@ -8,87 +8,60 @@ import { Button, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
 export default function App() {
-  const [statusNotification, setStatusNotification] = useState(true);
+  const [statusNotification, setStatusNotification] = useState(false);
 
+  //permisao
   useEffect(() => {
     async function getPermission() {
       const settings = await notifee.requestPermission();
 
       if (settings.authorizationStatus >= AuthorizationStatus.AUTHORIZED) {
-        console.log('Permitido', AuthorizationStatus.AUTHORIZED);
+        console.log('Permitido');
         setStatusNotification(true);
       } else {
         console.log('Usuário negou a permissão');
         setStatusNotification(false);
       }
     }
+
     getPermission();
   }, []);
 
+  // evento em foreground
   useEffect(() => {
-    return notifee.onForegroundEvent(({ type, detail }) => {
+    const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
       switch (type) {
         case EventType.DISMISSED:
-          console.log('Usuario descartou a notificação');
+          console.log('Usuário descartou a notificação');
           break;
         case EventType.PRESS:
-          console.log('Tocou ');
+          console.log('Usuário tocou na notificação');
           break;
       }
     });
+
+    return unsubscribe;
   }, []);
 
-  notifee.onBackgroundEvent(async ({type, detail}) => {
-    const {notification, pressAction} = detail;
-    if (type === EventType.PRESS){
-      console.log("Tocou na notificação background: ", pressAction?.id)
-      if(notification?.id){
-        await notifee.cancelNotification(notification?.id)
-      }
-    }
-
-    console.log("EVENT BACKGROUND")
-  })
-
-  async function handleScheduleNotification() {
-    const date = new Date(Date.now());
-
-    date.setSeconds(date.getSeconds() + 5);
-
-    const trigger = {
-      type: TriggerType.TIMESTAMP,
-      timestamp: date.getTime()
-    }
-
-    await notifee.createTriggerNotification({
-      title: 'Lembrete estudo',
-      body: 'Estudar para a prova',
-      android: {
-        channelId: 'lembrete',
-        importance: AndroidImportance.HIGH,
-        pressAction: {
-          id: 'default',
-        }
-      }
-    }, trigger)
-  }
-
-  async function handleNotification() {
-    if (!statusNotification) {
-      return;
-    }
-
-    const channelId = await notifee.createChannel({
+  // criar canal (reutilizável)
+  async function createChannel() {
+    return await notifee.createChannel({
       id: 'lembrete',
       name: 'lembrete',
       vibration: true,
       importance: AndroidImportance.HIGH,
     });
+  }
+
+  // notificação imediata
+  async function handleNotification() {
+    if (!statusNotification) return;
+
+    const channelId = await createChannel();
 
     await notifee.displayNotification({
-      id: 'lembrete',
       title: 'Estudar',
-      body: 'Lembrete para estudar fodase',
+      body: 'Lembrete para estudar',
       android: {
         channelId,
         pressAction: {
@@ -98,10 +71,59 @@ export default function App() {
     });
   }
 
+  // notificação agendada
+  async function handleScheduleNotification() {
+    if (!statusNotification) return;
+
+    const channelId = await createChannel();
+
+    const date = new Date();
+    date.setSeconds(date.getSeconds() + 10); // 🔥 10 segundos pra teste
+
+    const trigger = {
+      type: TriggerType.TIMESTAMP,
+      timestamp: date.getTime(),
+    };
+
+    await notifee.createTriggerNotification(
+      {
+        title: 'Lembrete estudo',
+        body: 'Estudar para a prova',
+        android: {
+          channelId,
+          pressAction: {
+            id: 'default',
+          },
+        },
+      },
+      trigger,
+    );
+  }
+
+  // cancelar notificação
+  async function handleCancelNotification() {
+    const ids = await notifee.getTriggerNotificationIds();
+
+    if (ids.length > 0) {
+      await notifee.cancelNotification(ids[0]);
+      console.log('Notificação cancelada:', ids[0]);
+    } else {
+      console.log('Nenhuma notificação para cancelar');
+    }
+  }
+
+  // listar notificações agendadas
+  async function handleListNotification() {
+    const ids = await notifee.getTriggerNotificationIds();
+    console.log('IDs:', ids);
+  }
+
   return (
     <View>
       <Button title="Mostrar notificação" onPress={handleNotification} />
-      <Button title='Agendar notificação' onPress={handleScheduleNotification} />
+      <Button title="Agendar notificação" onPress={handleScheduleNotification} />
+      <Button title="Listar notificações" onPress={handleListNotification} />
+      <Button title="Cancelar notificação" onPress={handleCancelNotification} />
     </View>
   );
 }
