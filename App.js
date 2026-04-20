@@ -1,4 +1,9 @@
-import notifee, { AndroidImportance, AuthorizationStatus, EventType } from '@notifee/react-native';
+import notifee, {
+  AndroidImportance,
+  AuthorizationStatus,
+  EventType,
+  TriggerType,
+} from '@notifee/react-native';
 import { Button, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
@@ -21,29 +26,64 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    return notifee.onForegroundEvent((type, detail) => {
+    return notifee.onForegroundEvent(({ type, detail }) => {
       switch (type) {
         case EventType.DISMISSED:
           console.log('Usuario descartou a notificação');
           break;
         case EventType.PRESS:
-          console.log("Tocou ", detail.notification )
-
+          console.log('Tocou ');
+          break;
       }
     });
   }, []);
 
+  notifee.onBackgroundEvent(async ({type, detail}) => {
+    const {notification, pressAction} = detail;
+    if (type === EventType.PRESS){
+      console.log("Tocou na notificação background: ", pressAction?.id)
+      if(notification?.id){
+        await notifee.cancelNotification(notification?.id)
+      }
+    }
+
+    console.log("EVENT BACKGROUND")
+  })
+
+  async function handleScheduleNotification() {
+    const date = new Date(Date.now());
+
+    date.setSeconds(date.getSeconds() + 5);
+
+    const trigger = {
+      type: TriggerType.TIMESTAMP,
+      timestamp: date.getTime()
+    }
+
+    await notifee.createTriggerNotification({
+      title: 'Lembrete estudo',
+      body: 'Estudar para a prova',
+      android: {
+        channelId: 'lembrete',
+        importance: AndroidImportance.HIGH,
+        pressAction: {
+          id: 'default',
+        }
+      }
+    }, trigger)
+  }
+
   async function handleNotification() {
-    if(!statusNotification){
-      return
-    };
+    if (!statusNotification) {
+      return;
+    }
 
     const channelId = await notifee.createChannel({
       id: 'lembrete',
       name: 'lembrete',
       vibration: true,
-      importance: AndroidImportance.HIGH
-    })
+      importance: AndroidImportance.HIGH,
+    });
 
     await notifee.displayNotification({
       id: 'lembrete',
@@ -52,18 +92,16 @@ export default function App() {
       android: {
         channelId,
         pressAction: {
-          id: 'default'
-        }
-      }
-    })
+          id: 'default',
+        },
+      },
+    });
   }
 
   return (
     <View>
-      <Button
-      title="Mostrar notificação"  
-      onPress={handleNotification}
-      />
+      <Button title="Mostrar notificação" onPress={handleNotification} />
+      <Button title='Agendar notificação' onPress={handleScheduleNotification} />
     </View>
   );
 }
