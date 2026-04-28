@@ -1,9 +1,22 @@
 import { useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 export default function App() {
   const [photo, setPhoto] = useState(null);
+
+  async function openCamera(){
+
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+      saveToPhotos: true,
+    }
+    const response = await launchCamera(options)
+
+    setPhoto(response.assets[0].uri);
+
+  }
 
   function openAlbum() {
     const options = {
@@ -24,7 +37,7 @@ export default function App() {
 
   return (
     <View>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={openCamera}>
         <Text>Abrir camera</Text>
       </TouchableOpacity>
 
