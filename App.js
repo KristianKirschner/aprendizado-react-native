@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 
 export default function App() {
@@ -62,6 +62,8 @@ export default function App() {
             longitudeDelta: novaRegiao.longitudeDelta,
           });
         }}
+
+        onPress={(e) => alert(e.nativeEvent.coordinate.latitude + ' ' + e.nativeEvent.coordinate.longitude)}
       />
     </View>
   );
@@ -90,3 +92,4 @@ const styles = StyleSheet.create({
     height: '100%',
   },
 });
+
