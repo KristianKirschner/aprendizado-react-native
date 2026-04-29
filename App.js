@@ -1,59 +1,20 @@
-import { useState } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { Text, View } from 'react-native';
+import MapView from 'react-native-maps';
 
 export default function App() {
-  const [photo, setPhoto] = useState(null);
-
-  async function openCamera(){
-
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-      saveToPhotos: true,
-    }
-    const response = await launchCamera(options)
-
-    setPhoto(response.assets[0].uri);
-
-  }
-
-  function openAlbum() {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-      selectionLimit: 2,
-    };
-
-    launchImageLibrary(options, respose => {
-      if (respose.didCancel) {
-        console.log('CANCELADO');
-      }
-
-      console.log(respose.assets);
-      setPhoto(respose.assets[0].uri);
-    });
-  }
-
   return (
     <View>
-      <TouchableOpacity onPress={openCamera}>
-        <Text>Abrir camera</Text>
-      </TouchableOpacity>
+      <Text>Projeto aaMapas</Text>
 
-      <TouchableOpacity onPress={openAlbum}>
-        <Text>Abrir galeria</Text>
-      </TouchableOpacity>
-      {photo !== null && (
-        <Image
-          style={{
-            width: '90%',
-            height: 300,
-            objectFit: 'cover',
-          }}
-          source={{ uri: photo }}
-        />
-      )}
+      <MapView
+        style={{ width: 350, height: 350 }}
+        initialRegion={{
+          latitude: -23.5492243,
+          longitude: -46.5813785,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      />
     </View>
   );
 }
